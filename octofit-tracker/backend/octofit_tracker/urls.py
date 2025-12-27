@@ -17,7 +17,30 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import UserViewSet, TeamViewSet, ActivityViewSet, WorkoutViewSet, LeaderboardViewSet, api_root
+from .views import UserViewSet, TeamViewSet, ActivityViewSet, WorkoutViewSet, LeaderboardViewSet
+
+# Custom API root to return full URLs using CODESPACE_NAME
+import os
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+@api_view(['GET'])
+def api_root(request):
+    CODESPACE_NAME = os.environ.get('CODESPACE_NAME')
+    if CODESPACE_NAME:
+        base_url = f"https://{CODESPACE_NAME}-8000.app.github.dev/api/"
+    else:
+        # fallback to request host or localhost
+        host = request.get_host() if request else 'localhost:8000'
+        scheme = 'https' if host.endswith('github.dev') else 'http'
+        base_url = f"{scheme}://{host}/api/"
+    return Response({
+        'users': base_url + 'users/',
+        'teams': base_url + 'teams/',
+        'activities': base_url + 'activities/',
+        'workouts': base_url + 'workouts/',
+        'leaderboard': base_url + 'leaderboard/',
+    })
 
 
 router = DefaultRouter()
