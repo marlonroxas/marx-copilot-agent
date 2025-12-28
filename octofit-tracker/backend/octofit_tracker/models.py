@@ -1,5 +1,5 @@
 
-from djongo import models
+from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
@@ -7,16 +7,14 @@ class User(AbstractUser):
     pass
 
 class Team(models.Model):
-    id = models.ObjectIdField(primary_key=True, editable=False)
     name = models.CharField(max_length=100, unique=True)
-    members = models.ManyToManyField('User', related_name='teams')
+    members = models.ManyToManyField('User', related_name='teams', through='TeamMember')
 
     def __str__(self):
         return self.name
 
 class Activity(models.Model):
-    id = models.ObjectIdField(primary_key=True, editable=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, to_field='id')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     type = models.CharField(max_length=50)
     duration = models.IntegerField()
     calories = models.IntegerField(default=0)
@@ -26,8 +24,7 @@ class Activity(models.Model):
         return f"{self.user.username} - {self.type}"
 
 class Workout(models.Model):
-    id = models.ObjectIdField(primary_key=True, editable=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, to_field='id')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     description = models.TextField()
     personalized = models.BooleanField(default=False)
@@ -36,9 +33,19 @@ class Workout(models.Model):
         return self.name
 
 class Leaderboard(models.Model):
-    id = models.ObjectIdField(primary_key=True, editable=False)
-    team = models.ForeignKey(Team, on_delete=models.CASCADE, to_field='id')
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)
     score = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.team.name}: {self.score}"
+
+
+class TeamMember(models.Model):
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('team', 'user'),)
+
+    def __str__(self):
+        return f"{self.user.username} in {self.team.name}"

@@ -13,19 +13,19 @@ class TeamSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'members']
 
 class ActivitySerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
     class Meta:
         model = Activity
         fields = ['id', 'user', 'type', 'duration', 'calories', 'timestamp']
 
 class WorkoutSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
     class Meta:
         model = Workout
         fields = ['id', 'user', 'name', 'description', 'personalized']
 
 class LeaderboardSerializer(serializers.ModelSerializer):
-    team = TeamSerializer(read_only=True)
+    team = serializers.PrimaryKeyRelatedField(queryset=Team.objects.all())
     class Meta:
         model = Leaderboard
         fields = ['id', 'team', 'score']

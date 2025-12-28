@@ -1,0 +1,8 @@
+{
+  "name": "marx-copilot-agent-root",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "npm start --prefix octofit-tracker/frontend"
+  }
+}
